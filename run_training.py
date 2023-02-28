@@ -196,16 +196,16 @@ train_configs = {
 
 def run_actor_training(
         envy_type: type(RLEnvy),
-        envy_point: dict,                       # for RLEnvy init
+        envy_point: dict,                   # for RLEnvy init
         actor_type: type(TrainableActor),
-        actor_point: dict,                      # for TrainableActor init
+        actor_point: dict,                  # for TrainableActor init
         trainer_type: type(RLTrainer),
-        trainer_point: dict,                    # for RLTrainer init
+        trainer_point: dict,                # for RLTrainer init
         nTS_ep=         100,
         seed=           121,
         loglevel=       20,
         hpmser_mode=    False,
-        **train_kwargs,                         # for RLTrainer.train()
+        **train_kwargs,                     # for RLTrainer.train()
 ) -> dict:
 
     # early override
@@ -253,11 +253,11 @@ def run_actor_training(
 if __name__ == "__main__":
 
     for config_name in [
-        'SBG_QTable',
+        #'SBG_QTable',
         #'SBG_DQN',
         #'CP_PG',
         #'CP_AC',
-        #'CP_A2C',
+        'CP_A2C',
         #'CP_ACShared',
         #'ACR_AC',
     ]:
