@@ -51,8 +51,8 @@ class SimpleBoardGame(FiniteActionsRLEnvy):
     def render(self):
         print(self.__state)
 
-    def prep_observation_vec(self, observation: List[int]) -> np.ndarray:
-        return np.array(observation, dtype=np.float32)
+    def prep_observation_vec(self, observation:List[int]) -> np.ndarray:
+        return np.asarray(observation, dtype=float)
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__board_size))
@@ -117,7 +117,7 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
         self.__gym_envy.render()
 
     def prep_observation_vec(self, observation:np.ndarray) -> np.ndarray:
-        return np.array(observation, dtype=np.float32)
+        return np.asarray(observation, dtype=np.float32)
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__gym_envy.action_space.n))
@@ -171,7 +171,7 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
         self.__gym_envy.render()
 
     def prep_observation_vec(self, observation:np.ndarray) -> np.ndarray:
-        return np.array(observation, dtype=np.float32)
+        return np.asarray(observation, dtype=np.float32)
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__gym_envy.action_space.n))

@@ -20,13 +20,13 @@ train_configs = {
 
     'SBG_QTable': {
         'envy_type':        SimpleBoardGame,
-        'envy_point':       {'board_size':6},
+        'envy_point':       {'board_size':4},#6}, # TODO: <-
         'actor_type':       QTableActor,
         'actor_point':      {},
         'trainer_type':     QTableTrainer ,
         'trainer_point':    {
             'batch_size':       10,
-            'memsize_batches':  10,
+            'mem_batches':      10,
             'exploration':      0.5,
             'train_sampled':    0.1,
             'gamma':            0.5,
@@ -44,7 +44,7 @@ train_configs = {
         'trainer_type':     QLearningTrainer,
         'trainer_point':    {
             'batch_size':       10,
-            'memsize_batches':  10,
+            'mem_batches':      10,
             'exploration':      0.5,
             'train_sampled':    0.3,
             'gamma':            0.5},
@@ -66,7 +66,6 @@ train_configs = {
         'trainer_type':     PGTrainer,
         'trainer_point':    {
             'batch_size':       256,# if not episodic else 555,
-            'memsize_batches':  1,
             'exploration':      0.1,
             'train_sampled':    0.3,
             'discount':         0.98,
@@ -93,7 +92,6 @@ train_configs = {
             'critic_gamma':     0.99,
             'critic_baseLR':    0.0005,
             'batch_size':       256,
-            'memsize_batches':  1,
             'exploration':      0.1,
             'train_sampled':    0.0,
             'discount':         0.98,
@@ -129,7 +127,6 @@ train_configs = {
         'trainer_type':     PGTrainer,
         'trainer_point':    {
             'batch_size':       256,    #768,
-            'memsize_batches':  1,
             'exploration':      0.2,    #0.0,
             'train_sampled':    0.1,    #0.0,
             'discount':         0.98,
@@ -156,7 +153,6 @@ train_configs = {
         'trainer_type':     PGTrainer,
         'trainer_point':    {
             'batch_size':       256,
-            'memsize_batches':  1,
             'exploration':      0.1,
             'train_sampled':    0.3,
             'discount':         0.98,
@@ -179,7 +175,6 @@ train_configs = {
             'critic_gamma':     0.99,
             'critic_baseLR':    0.1,
             'batch_size':       500,
-            'memsize_batches':  1,
             'exploration':      0.1,
             'train_sampled':    0.0,
             'discount':         0.98,
@@ -223,6 +218,7 @@ def run_actor_training(
         seed=       seed,
         loglevel=   loglevel,
         **actor_point)
+    print(actor)
 
     trainer = trainer_type(
         envy=       envy,
@@ -247,17 +243,18 @@ def run_actor_training(
         ts_res = trainer.test_on_episodes(n_episodes=nTS_ep)
         print(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
+    print(actor)
     return tr_res
 
 
 if __name__ == "__main__":
 
     for config_name in [
-        #'SBG_QTable',
+        'SBG_QTable',
         #'SBG_DQN',
         #'CP_PG',
         #'CP_AC',
-        'CP_A2C',
+        #'CP_A2C',
         #'CP_ACShared',
         #'ACR_AC',
     ]:
