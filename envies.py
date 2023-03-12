@@ -1,14 +1,15 @@
 import gym
 import numpy as np
 from r4c.envy import FiniteActionsRLEnvy
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 
 
 class SimpleBoardGame(FiniteActionsRLEnvy):
     """
-        gots N fields on the board,
-        task is to get into each field once, after that game is won
+    Is a finite actions, finite states Envy.
+    Gots N fields on the board,
+    task is to get into each field once, after that game is won.
     """
 
     def __init__(self, board_size= 4, **kwargs):
@@ -20,39 +21,44 @@ class SimpleBoardGame(FiniteActionsRLEnvy):
         self.__state: Optional[List[int]] = None
         self.reset()
 
+
     def _lost_episode(self) -> bool:
         return max(self.__state) > 1
 
-    def _won_episode(self) -> bool:
+
+    def won(self) -> bool:
         return set(self.__state) == {1}
 
-    def _is_terminal(self) -> bool:
-        return self._lost_episode() or self._won_episode()
 
-    def run(self, action: int) -> Tuple[float,bool,bool]:
+    def is_terminal(self) -> bool:
+        return self._lost_episode() or self.won()
 
-        if self._is_terminal(): self.reset()
 
+    def run(self, action: int) -> float:
         self.__state[action] += 1
-
         reward = 1 if not self._lost_episode() else -1
-        return reward, self._is_terminal(), self._won_episode()
+        return reward
+
 
     def get_observation(self) -> List[int]:
         return [] + self.__state
 
-    def _reset_with_seed(self, seed:int):
-        # seed is not used since SimpleBoardGame is deterministic
+    # INFO: seed is not used since SimpleBoardGame is deterministic
+    def reset_with_seed(self, seed:int):
         self.__state = [0] * self.__board_size
+
 
     def get_max_steps(self) -> Optional[int]:
         return self.__board_size
 
+
     def render(self):
         print(self.__state)
 
-    def prep_observation_vec(self, observation:List[int]) -> np.ndarray:
-        return np.asarray(observation, dtype=float)
+
+    def observation_vector(self, observation:List[int]) -> np.ndarray:
+        return np.asarray(observation, dtype=int)
+
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__board_size))
@@ -85,28 +91,27 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
     def _lost_episode(self) -> bool:
         return self.__is_over and self.__gym_envy._elapsed_steps < self.get_max_steps()
 
-    def _won_episode(self) -> bool:
+    def won(self) -> bool:
         return self.__is_over and self.__gym_envy._elapsed_steps >= self.get_max_steps()
 
-    def _is_terminal(self) -> bool:
-        return self._lost_episode() or self._won_episode()
+    def is_terminal(self) -> bool:
+        return self._lost_episode() or self.won()
 
-    def run(self, action:int) -> Tuple[float,bool,bool]:
-
-        if self._is_terminal(): self.reset()
+    def run(self, action:int) -> float:
 
         next_state, r, game_over, info = self.__gym_envy.step(action)
         self.__is_over = game_over
 
         reward = self.__reward_scale * r
         if self._lost_episode(): reward = self.__lost_penalty
-        if self._won_episode(): reward = self.__won_reward
-        return reward, self._is_terminal(), self._won_episode()
+        if self.won(): reward = self.__won_reward
+
+        return reward
 
     def get_observation(self) -> np.ndarray:
         return self.__gym_envy.state
 
-    def _reset_with_seed(self, seed:int):
+    def reset_with_seed(self, seed:int):
         self.__gym_envy.reset(seed=seed)
         self.__is_over = False
 
@@ -116,7 +121,7 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
     def render(self):
         self.__gym_envy.render()
 
-    def prep_observation_vec(self, observation:np.ndarray) -> np.ndarray:
+    def observation_vector(self, observation:np.ndarray) -> np.ndarray:
         return np.asarray(observation, dtype=np.float32)
 
     def get_valid_actions(self) -> List[int]:
@@ -140,27 +145,22 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
     def _lost_episode(self) -> bool:
         return self.__is_over and self.__gym_envy._elapsed_steps < self.get_max_steps()
 
-    def _won_episode(self) -> bool:
+    def won(self) -> bool:
         return self.__is_over and self.__gym_envy._elapsed_steps >= self.get_max_steps()
 
-    def _is_terminal(self) -> bool:
-        return self._lost_episode() or self._won_episode()
+    def is_terminal(self) -> bool:
+        return self._lost_episode() or self.won()
 
-    def run(self, action:int) -> Tuple[float,bool,bool]:
-
-        if self._is_terminal(): self.reset()
-
+    def run(self, action:int) -> float:
         next_state, r, game_over, info = self.__gym_envy.step(action)
         self.__is_over = game_over
-
-        won = self._won_episode()
-        reward = self.__end_game_reward if won else r
-        return reward, self._is_terminal(), won
+        reward = self.__end_game_reward if self.won() else r
+        return reward
 
     def get_observation(self) -> np.ndarray:
         return self.__gym_envy.state
 
-    def _reset_with_seed(self, seed: int):
+    def reset_with_seed(self, seed: int):
         self.__gym_envy.reset(seed=seed)
         self.__is_over = False
 
@@ -170,7 +170,7 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
     def render(self):
         self.__gym_envy.render()
 
-    def prep_observation_vec(self, observation:np.ndarray) -> np.ndarray:
+    def observation_vector(self, observation:np.ndarray) -> np.ndarray:
         return np.asarray(observation, dtype=np.float32)
 
     def get_valid_actions(self) -> List[int]:
@@ -188,5 +188,5 @@ if __name__ == "__main__":
         envy = et(seed=123)
         obs = envy.get_observation()
         print(type(obs), obs)
-        obs_vec = envy.prep_observation_vec(obs)
+        obs_vec = envy.observation_vector(obs)
         print(type(obs_vec), obs_vec)

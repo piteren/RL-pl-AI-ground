@@ -20,7 +20,7 @@ train_configs = {
 
     'SBG_QTable': {
         'envy_type':        SimpleBoardGame,
-        'envy_point':       {'board_size':4},#6}, # TODO: <-
+        'envy_point':       {'board_size':6},
         'actor_type':       QTableActor,
         'actor_point':      {},
         'trainer_type':     QTableTrainer ,
@@ -218,7 +218,6 @@ def run_actor_training(
         seed=       seed,
         loglevel=   loglevel,
         **actor_point)
-    print(actor)
 
     trainer = trainer_type(
         envy=       envy,
@@ -243,16 +242,15 @@ def run_actor_training(
         ts_res = trainer.test_on_episodes(n_episodes=nTS_ep)
         print(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
-    print(actor)
     return tr_res
 
 
 if __name__ == "__main__":
 
     for config_name in [
-        'SBG_QTable',
+        #'SBG_QTable',
         #'SBG_DQN',
-        #'CP_PG',
+        'CP_PG',
         #'CP_AC',
         #'CP_A2C',
         #'CP_ACShared',
