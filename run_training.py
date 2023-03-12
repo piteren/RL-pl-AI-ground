@@ -249,8 +249,8 @@ if __name__ == "__main__":
 
     for config_name in [
         #'SBG_QTable',
-        #'SBG_DQN',
-        'CP_PG',
+        'SBG_DQN',
+        #'CP_PG',
         #'CP_AC',
         #'CP_A2C',
         #'CP_ACShared',
