@@ -10,7 +10,6 @@ from r4c.policy_gradients.pg_trainer import PGTrainer
 from r4c.policy_gradients.actor_critic.ac_critic import ACCritic
 from r4c.policy_gradients.actor_critic.ac_trainer import ACTrainer
 from r4c.policy_gradients.a2c.a2c_actor import A2CActor
-from r4c.policy_gradients.actor_critic_shared.ac_shared_actor import ACSharedActor
 
 from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy
 
@@ -141,29 +140,6 @@ train_configs = {
         'inspect':          True,
     },
 
-    'CP_ACShared': {
-        'envy_type':        CartPoleEnvy,
-        'envy_point':       {
-            'reward_scale': 0.1,
-            'lost_penalty': -10.0},
-        'actor_type':       ACSharedActor,
-        'actor_point':      {
-            'hidden_layers':    (20,20),
-            'baseLR':           0.00005},
-        'trainer_type':     PGTrainer,
-        'trainer_point':    {
-            'batch_size':       256,
-            'exploration':      0.1,
-            'train_sampled':    0.3,
-            'discount':         0.98,
-            'use_mavg':         True,
-            'mavg_factor':      0.3,
-            'do_zscore':        True},
-        'num_updates':      1000,
-        'upd_on_episode':   False,
-        'test_freq':        50,
-        'test_episodes':    10},
-
     'ACR_AC': {
         'envy_type':        AcrobotEnvy,
         'envy_point':       {},
@@ -249,11 +225,10 @@ if __name__ == "__main__":
 
     for config_name in [
         #'SBG_QTable',
-        'SBG_DQN',
+        #'SBG_DQN',
         #'CP_PG',
-        #'CP_AC',
+        'CP_AC',
         #'CP_A2C',
-        #'CP_ACShared',
         #'ACR_AC',
     ]:
         run_actor_training(

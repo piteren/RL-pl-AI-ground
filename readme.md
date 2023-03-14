@@ -12,4 +12,4 @@ https://towardsdatascience.com/lessons-learned-from-tic-tac-toe-practical-reinfo
 
 https://www.youtube.com/watch?v=EKqxumCuAAY&list=PLkFD6_40KJIwhWJpGazJ9VSj9CFMkb79A&index=8
 
-https://www.tensorflow.org/agents
+https://theaisummer.com/topics/reinforcement-learning/
