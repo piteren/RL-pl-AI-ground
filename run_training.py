@@ -1,3 +1,7 @@
+from pypaq.lipytools.pylogger import get_pylogger
+from pypaq.lipytools.printout import stamp
+
+
 from r4c.envy import RLEnvy
 from r4c.actor import TrainableActor
 from r4c.runner import RLRunner
@@ -20,8 +24,9 @@ def run_actor_training(
         nTS_ep=         100,
         seed=           121,
         loglevel=       20,
+        save_topdir=    '_models',
         hpmser_mode=    False,
-        **train_kwargs,                     # for RLTrainer.train()
+        **train_kwargs,                     # for RLRunner.train()
 ) -> dict:
 
     # early override
@@ -29,38 +34,53 @@ def run_actor_training(
         nTS_ep = 0
         loglevel = 50
 
+    name = f'{actor_type.__name__}_{envy_type.__name__}_{stamp()}'
+
+    logger = get_pylogger(
+        name=       name,
+        add_stamp=  False,
+        folder=     f'{save_topdir}/{name}',
+        level=      loglevel)
+
     envy = envy_type(
         seed=       seed,
-        loglevel=   loglevel,
+        logger=     logger,
         **envy_point)
+    logger.info(envy)
 
     actor = actor_type(
+        name=       name,
+        add_stamp=  False,
         envy=       envy,
         seed=       seed,
-        loglevel=   loglevel,
+        logger=     logger,
         **actor_point)
+    logger.info(actor)
 
     runner = RLRunner(
         envy=       envy,
         actor=      actor,
         seed=       seed,
-        loglevel=   loglevel)
+        logger=     logger)
+
+    actor.save()
 
     if nTS_ep:
         ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
-        print(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
+        logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     tr_res = runner.train(**train_kwargs)
     if not hpmser_mode:
-        print('Training report:')
-        print(f'> number of actions performed (n_actions):                    {tr_res["n_actions"]}')
-        print(f'> number of terminal states reached (n_terminals):            {tr_res["n_terminals"]}')
-        print(f'> number of wins (n_won):                                     {tr_res["n_won"]}')
-        print(f'> max number of succeeded tests in a row (succeeded_row_max): {tr_res["succeeded_row_max"]}')
+        tr_nfo =   'Training report:\n'
+        tr_nfo += f'> number of actions performed (n_actions):                    {tr_res["n_actions"]}\n'
+        tr_nfo += f'> number of terminal states reached (n_terminals):            {tr_res["n_terminals"]}\n'
+        tr_nfo += f'> number of wins (n_won):                                     {tr_res["n_won"]}\n'
+        tr_nfo += f'> max number of succeeded tests in a row (succeeded_row_max): {tr_res["succeeded_row_max"]}'
+        logger.info(tr_nfo)
 
     if nTS_ep:
         ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
-        print(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
+        logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     return tr_res
 
@@ -69,7 +89,9 @@ if __name__ == "__main__":
 
     train_configs = {
 
-        'SBG_QTable': {
+        ### SimpleBoardGame
+
+        'QTable_SBG': {
             'envy_type':        SimpleBoardGame,
             'envy_point':       {'board_size':6},
             'actor_type':       QTableActor,
@@ -84,14 +106,14 @@ if __name__ == "__main__":
             'sampled_TR':       0.1,
             'test_freq':        10},
 
-        'SBG_DQN': {
+        'DQN_SBG': {
             'envy_type':        SimpleBoardGame,
             'envy_point':       {'board_size':6},
             'actor_type':       DQNActor,
             'actor_point':      {
                 'gamma':            0.5,
-                'baseLR':           0.01,
-                'device':           None},
+                'motorch_point':    {'baseLR':0.01},
+            },
             'num_updates':      200,
             'batch_size':       10,
             'mem_batches':      10,
@@ -100,31 +122,37 @@ if __name__ == "__main__":
             'sampled_TR':       0.3,
             'test_freq':        10},
 
-        'CP_PG': {
+        ### CartPole
+
+        'PG_CP': {
             'envy_type':        CartPoleEnvy,
             'envy_point':       {
-                'reward_scale': 0.1,
-                'lost_penalty': -10.0},
+                'reward_scale':     0.1,
+                'lost_penalty':     -1.0},
             'actor_type':       PGActor,
             'actor_point':      {
-                'discount':         0.98,
-                'use_mavg':         True,
+                'discount':         0.95,
+                'use_mavg':         False,
                 'mavg_factor':      0.3,
                 'do_zscore':        True,
-                'hidden_layers':    (20,20),
-                'baseLR':           0.001,# if not episodic else 0.01,
-                'lay_norm':         True,
-                'use_scaled_ce':    False,  # TODO: check, but with lower LR
-                'do_clip':          True},
-            'num_updates':      1000,
-            'batch_size':       256,  # if not episodic else 555,
-            'exploration':      0.1,
-            'sampled_TR':       0.3,
-            'upd_on_episode':   False,#episodic,
+                'motorch_point': {
+                    'hidden_layers':    (20,20),
+                    'baseLR':           0.001,
+                    #'lay_norm':         True,
+                    #'use_scaled_ce':    True,  # TODO: check, but with lower LR
+                    #'do_clip':          True,
+                },
+            },
+            'num_updates':      500,
+            'batch_size':       100,
+            'exploration':      0.5,
+            'sampled_TR':       0.5,
+            'upd_on_episode':   False,
             'test_freq':        50,
-            'test_episodes':    10},
+            'test_episodes':    10,
+            'inspect':          True},
 
-        'CP_AC': {
+        'AC_CP': {
             'envy_type':        CartPoleEnvy,
             'envy_point':       {
                 'reward_scale': 0.1,
@@ -148,7 +176,7 @@ if __name__ == "__main__":
             'test_freq':        50,
             'test_episodes':    10},
 
-        'CP_A2C': {
+        'A2C_CP': {
             'envy_type':        CartPoleEnvy,
             'envy_point':       {
                 'reward_scale': 0.1,
@@ -181,7 +209,9 @@ if __name__ == "__main__":
             'inspect':          True,
         },
 
-        'ACR_AC': {
+        ### Acrobot
+
+        'AC_ACR': {
             'envy_type':        AcrobotEnvy,
             'envy_point':       {},
             'actor_type':       PGActor,
@@ -205,12 +235,14 @@ if __name__ == "__main__":
     }
 
     for config_name in [
-        #'SBG_QTable',
-        #'SBG_DQN',
-        #'CP_PG',
-        #'CP_AC',
-        'CP_A2C',
-        #'ACR_AC',
+        #'QTable_SBG',
+        #'DQN_SBG',
+
+        'PG_CP',
+        #'AC_CP',
+        #'A2C_CP',
+
+        #'AC_ACR',
     ]:
         run_actor_training(
             nTS_ep=     10,
