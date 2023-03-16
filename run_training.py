@@ -63,13 +63,17 @@ def run_actor_training(
         seed=       seed,
         logger=     logger)
 
-    actor.save()
+    if 'inspect' in train_kwargs and train_kwargs['inspect']:
+        max_steps = train_kwargs['test_max_steps'] if 'test_max_steps' in train_kwargs else None
+        runner.play_episode(max_steps=max_steps, inspect=True)
 
     if nTS_ep:
         ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     tr_res = runner.train(**train_kwargs)
+    actor.save()
+
     if not hpmser_mode:
         tr_nfo =   'Training report:\n'
         tr_nfo += f'> number of actions performed (n_actions):                    {tr_res["n_actions"]}\n'
@@ -77,6 +81,10 @@ def run_actor_training(
         tr_nfo += f'> number of wins (n_won):                                     {tr_res["n_won"]}\n'
         tr_nfo += f'> max number of succeeded tests in a row (succeeded_row_max): {tr_res["succeeded_row_max"]}'
         logger.info(tr_nfo)
+
+    if 'inspect' in train_kwargs and train_kwargs['inspect']:
+        max_steps = train_kwargs['test_max_steps'] if 'test_max_steps' in train_kwargs else None
+        runner.play_episode(max_steps=max_steps, inspect=True)
 
     if nTS_ep:
         ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
@@ -128,7 +136,8 @@ if __name__ == "__main__":
             'envy_type':        CartPoleEnvy,
             'envy_point':       {
                 'reward_scale':     0.1,
-                'lost_penalty':     -1.0},
+                'won_reward':       0.1,
+                'lost_reward':     -1.0},
             'actor_type':       PGActor,
             'actor_point':      {
                 'discount':         0.95,
