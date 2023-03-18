@@ -71,9 +71,9 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
 
     def __init__(
             self,
-            reward_scale=   1.0,    # CartPole-v1 gives 1 for every step, we set reward == 1*reward_scale
+            step_reward=    1.0,    # reward returned every step
             won_reward=     100,    # reward given for won episode (last action)
-            lost_reward=   -100.0, # reward given for lost episode (last action)
+            lost_reward=   -100.0,  # reward given for lost episode (last action)
             max_steps=      500,    # you can override default 500 of CartPole-v1
             **kwargs):
 
@@ -82,7 +82,7 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
 
         FiniteActionsRLEnvy.__init__(self, **kwargs)
 
-        self.__reward_scale = float(reward_scale)
+        self.__step_reward = float(step_reward)
         self.__won_reward = float(won_reward)
         self.__lost_reward = float(lost_reward)
         self.__is_over = False
@@ -99,10 +99,10 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
 
     def run(self, action:int) -> float:
 
-        next_state, r, game_over, info = self.__gym_envy.step(action)
+        next_state, reward, game_over, info = self.__gym_envy.step(action)
         self.__is_over = game_over
 
-        reward = self.__reward_scale * r
+        reward = self.__step_reward
         if self._lost_episode(): reward = self.__lost_reward
         if self.won(): reward = self.__won_reward
 
