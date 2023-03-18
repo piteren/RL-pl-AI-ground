@@ -86,14 +86,29 @@ if __name__ == "__main__":
                 'exploration':          [0.0,1.0],
                 'sampled_TR':           [0.0,1.0],
             }
-        }
+        },
+
+        'A2C_CP': {
+            'psdd': {
+                'act_discount':         [0.5,0.99],
+                'mot_two_towers':       (True, False),
+                'mot_n_hidden':         [1,3],
+                'mot_hidden_width':     [10,50],
+                'mot_use_huber':        (True, False),
+                'mot_baseLR':           (0.03, 0.01, 0.005, 0.001, 0.0005, 0.0001),
+                'batch_size':           (8,16,32,64,128,256),
+                'exploration':          [0.0,1.0],
+                'sampled_TR':           [0.0,1.0],
+            }
+        },
 
     }
 
 
     for run_config_name in [
         #'DQN_CP',
-        'PG_CP',
+        #'PG_CP',
+        'A2C_CP',
     ]:
 
         func_const = deepcopy(hpmser_configs[run_config_name]['const']) if 'const' in hpmser_configs[run_config_name] else {}
