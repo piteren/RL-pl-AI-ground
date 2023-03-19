@@ -50,11 +50,11 @@ def run_actor_training_wrap(
 if __name__ == "__main__":
 
     global_const = {
-        'num_updates':      500,
+        'num_updates':      1000,
         'test_freq':        20,
         'test_episodes':    10,
         'inspect':          False,
-        'break_ntests':     1,
+        'break_ntests':     2,
     }
 
     # parameters of run_wrap
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
         'PG_CP': {
             'psdd': {
-                'act_discount':         [0.5,0.99],
+                'act_discount':         [0.5,1.0],
                 'mot_n_hidden':         [1,3],
                 'mot_hidden_width':     [10,50],
                 'mot_baseLR':           (0.03, 0.01, 0.005, 0.001, 0.0005, 0.0001),
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
         'A2C_CP': {
             'psdd': {
-                'act_discount':         [0.5,0.99],
+                'act_discount':         [0.0,1.0],
                 'mot_two_towers':       (True, False),
                 'mot_n_hidden':         [1,3],
                 'mot_hidden_width':     [10,50],
