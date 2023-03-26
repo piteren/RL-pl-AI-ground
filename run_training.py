@@ -97,7 +97,7 @@ RUN_CONFIGS = {
                 'hidden_width':     36,#20,
                 'baseLR':           0.001,
                 #'lay_norm':         True,
-                #'use_scaled_ce':    True,  # TODO: check, but with lower LR
+                #'use_scaled_ce':    True,
                 #'do_clip':          True,
             },},
         'num_updates':      700,

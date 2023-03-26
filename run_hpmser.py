@@ -43,8 +43,7 @@ def run_actor_training_wrap(
     return (pd['num_updates'] - tr_res['n_updates_done']) / pd['num_updates']
 
 
-# TODO:
-#  - TB,save
+
 if __name__ == "__main__":
 
     hpmser_configs = {
@@ -116,6 +115,6 @@ if __name__ == "__main__":
             func_const= func_const,
             devices=    [None]*10,
             plot_axes=  ['mot_hidden_width','exploration'],
-            #loglevel=   10,
+            loglevel=   10,
             #do_TB=      False,
         )
