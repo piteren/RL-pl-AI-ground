@@ -5,12 +5,12 @@ from pypaq.mpython.devices import DevicesPypaq
 from run_training import RUN_CONFIGS, run_actor_training
 
 
-# updates nested dict (run_configs[run_config_name]) with kwargs, returns score
+# updates nested dict (run_configs[run_config_name]) with kwargs, returns score <0;1>
 def run_actor_training_wrap(
         run_config_name: str,
         devices: DevicesPypaq,
         hpmser_mode=    True,
-        **kwargs # kwargs that start with specific prefix go to one of mdicts
+        **kwargs            # kwargs starting with specific prefix go to one of mdicts
 ) -> float:
 
     pd = deepcopy(RUN_CONFIGS[run_config_name])
@@ -32,7 +32,6 @@ def run_actor_training_wrap(
             point[param] = kwargs[param]
 
     pd['hpmser_mode'] = hpmser_mode
-    pd.update(global_const)
     pd.update(point)
     pd['envy_point'].update(envy_point)
     pd['actor_point'].update(actor_point)
@@ -41,21 +40,12 @@ def run_actor_training_wrap(
 
     tr_res = run_actor_training(**pd)
 
-    if tr_res["succeeded_row_max"] < pd['break_ntests']: return 0.0
-    return 1 / tr_res["n_actions"]
+    return (pd['num_updates'] - tr_res['n_updates_done']) / pd['num_updates']
 
 
 # TODO:
 #  - TB,save
 if __name__ == "__main__":
-
-    global_const = {
-        'num_updates':      1000,
-        'test_freq':        20,
-        'test_episodes':    10,
-        'inspect':          False,
-        'break_ntests':     1,
-    }
 
     # parameters of run_wrap
     hpmser_configs = {
@@ -111,8 +101,16 @@ if __name__ == "__main__":
         #'A2C_CP',
     ]:
 
-        func_const = deepcopy(hpmser_configs[run_config_name]['const']) if 'const' in hpmser_configs[run_config_name] else {}
-        func_const['run_config_name'] = run_config_name
+        func_const = {
+            'run_config_name':  run_config_name,
+            'num_updates':      1000,
+            'test_freq':        20,
+            'test_episodes':    10,
+            'inspect':          False,
+            'break_ntests':     1,
+        }
+        if 'const' in hpmser_configs[run_config_name]:
+            func_const.update(hpmser_configs[run_config_name]['const'])
 
         hpmser(
             func=       run_actor_training_wrap,
