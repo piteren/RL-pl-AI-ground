@@ -1,5 +1,5 @@
 from copy import deepcopy
-from hpmser.search import hpmser
+from hpmser.search import HPMSer
 from pypaq.mpython.devices import DevicesPypaq
 
 from run_training import RUN_CONFIGS, run_actor_training
@@ -47,7 +47,6 @@ def run_actor_training_wrap(
 #  - TB,save
 if __name__ == "__main__":
 
-    # parameters of run_wrap
     hpmser_configs = {
 
         'DQN_CP': {
@@ -94,27 +93,26 @@ if __name__ == "__main__":
 
     }
 
-
-    for run_config_name in [
+    for rc_name in [
         #'DQN_CP',
         'PG_CP',
         #'A2C_CP',
     ]:
 
         func_const = {
-            'run_config_name':  run_config_name,
+            'run_config_name':  rc_name,
             'num_updates':      1000,
             'test_freq':        20,
             'test_episodes':    10,
             'inspect':          False,
             'break_ntests':     1,
         }
-        if 'const' in hpmser_configs[run_config_name]:
-            func_const.update(hpmser_configs[run_config_name]['const'])
+        if 'const' in hpmser_configs[rc_name]:
+            func_const.update(hpmser_configs[rc_name]['const'])
 
-        hpmser(
+        HPMSer(
             func=       run_actor_training_wrap,
-            func_psdd=  hpmser_configs[run_config_name]['psdd'],
+            func_psdd=  hpmser_configs[rc_name]['psdd'],
             func_const= func_const,
             devices=    [None]*10,
             plot_axes=  ['mot_hidden_width','exploration'],
