@@ -9,8 +9,9 @@ from run_training import RUN_CONFIGS, run_actor_training
 def run_actor_training_wrap(
         run_config_name: str,
         devices: DevicesPypaq,
-        hpmser_mode=    True,
-        **kwargs            # kwargs starting with specific prefix go to one of mdicts
+        max_batch_size: int,
+        hpmser_mode=        True,
+        **kwargs                # kwargs starting with specific prefix go to one of mdicts
 ) -> float:
 
     pd = deepcopy(RUN_CONFIGS[run_config_name])
@@ -40,7 +41,13 @@ def run_actor_training_wrap(
 
     tr_res = run_actor_training(**pd)
 
-    return (pd['num_updates'] - tr_res['n_updates_done']) / pd['num_updates']
+    if tr_res['n_updates_done'] == pd['num_updates']:
+        return 0.0
+
+    num_actions_done = tr_res['n_updates_done'] * pd['batch_size']
+    num_actions_max = pd['num_updates'] * max_batch_size
+
+    return (num_actions_max - num_actions_done) / num_actions_max
 
 
 
@@ -105,6 +112,7 @@ if __name__ == "__main__":
             'test_episodes':    10,
             'inspect':          False,
             'break_ntests':     1,
+            'max_batch_size':   max(hpmser_configs[rc_name]['psdd']['batch_size']),
         }
         if 'const' in hpmser_configs[rc_name]:
             func_const.update(hpmser_configs[rc_name]['const'])
@@ -114,7 +122,8 @@ if __name__ == "__main__":
             func_psdd=  hpmser_configs[rc_name]['psdd'],
             func_const= func_const,
             devices=    [None]*10,
+            n_loops=    1000,
             plot_axes=  ['mot_hidden_width','exploration'],
-            loglevel=   10,
+            #loglevel=   10,
             #do_TB=      False,
         )
