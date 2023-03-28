@@ -181,7 +181,7 @@ RUN_CONFIGS = {
             'mavg_factor':      0.3,
             'do_zscore':        False},
         'num_updates':      500,
-        'upd_on_episode':   True, # TODO:?
+        'upd_on_episode':   True,
         'test_freq':        20,
         'test_episodes':    10},
 
