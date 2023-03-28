@@ -1,6 +1,8 @@
 from copy import deepcopy
 from hpmser.search import HPMSer
 from pypaq.mpython.devices import DevicesPypaq
+from pypaq.pms.paspa import PaSpa
+from pypaq.pms.base import point_str
 
 from run_training import RUN_CONFIGS, run_actor_training
 
@@ -8,7 +10,7 @@ from run_training import RUN_CONFIGS, run_actor_training
 # updates nested dict (run_configs[run_config_name]) with kwargs, returns score <0;1>
 def run_actor_training_wrap(
         run_config_name: str,
-        devices: DevicesPypaq,
+        device: DevicesPypaq,
         max_batch_size: int,
         hpmser_mode=        True,
         **kwargs                # kwargs starting with specific prefix go to one of mdicts
@@ -18,7 +20,7 @@ def run_actor_training_wrap(
 
     envy_point = {}
     actor_point = {}
-    motorch_point = {'device':devices}
+    motorch_point = {'device':device}
     point = {}
     for param in kwargs:
 
@@ -26,7 +28,7 @@ def run_actor_training_wrap(
         sd = {'env_':envy_point, 'act_':actor_point, 'mot_':motorch_point}
         for k in sd:
             if param.startswith(k):
-                sd[k] = kwargs[param]
+                sd[k][param[4:]] = kwargs[param]
                 param_from_points = True
 
         if not param_from_points:
@@ -111,7 +113,7 @@ if __name__ == "__main__":
             'test_freq':        20,
             'test_episodes':    10,
             'inspect':          False,
-            'break_ntests':     1,
+            'break_ntests':     3,
             'max_batch_size':   max(hpmser_configs[rc_name]['psdd']['batch_size']),
         }
         if 'const' in hpmser_configs[rc_name]:
