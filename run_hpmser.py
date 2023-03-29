@@ -103,8 +103,8 @@ if __name__ == "__main__":
 
     for rc_name in [
         #'DQN_CP',
-        'PG_CP',
-        #'A2C_CP',
+        #'PG_CP',
+        'A2C_CP',
     ]:
 
         func_const = {
