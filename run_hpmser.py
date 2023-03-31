@@ -1,8 +1,6 @@
 from copy import deepcopy
 from hpmser.search import HPMSer
 from pypaq.mpython.devices import DevicesPypaq
-from pypaq.pms.paspa import PaSpa
-from pypaq.pms.base import point_str
 
 from run_training import RUN_CONFIGS, run_actor_training
 

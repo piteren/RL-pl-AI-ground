@@ -4,7 +4,6 @@ from pypaq.lipytools.printout import stamp
 
 from r4c.envy import RLEnvy
 from r4c.actor import TrainableActor
-from r4c.runner import RLRunner
 from r4c.qlearning.qtable.qt_actor import QTableActor
 from r4c.qlearning.dqn.dqn_actor import DQNActor
 from r4c.policy_gradients.pg_actor import PGActor
@@ -24,34 +23,38 @@ RUN_CONFIGS = {
         'envy_point':       {'board_size':6},
         'actor_type':       QTableActor,
         'actor_point':      {
+            'exploration':      0.5,
+            'sampled_TR':       0.1,
+            'batch_size':       10,
+            'mem_batches':      10,
+            'sample_memory':    True,
             'gamma':            0.5,
             'update_rate':      0.5},
-        'num_updates':      100,
-        'batch_size':       10,
-        'mem_batches':      10,
-        'sample_memory':    True,
-        'exploration':      0.5,
-        'sampled_TR':       0.1,
-        'test_freq':        10},
+        'num_batches':      100,
+        'test_freq':        10,
+        'test_episodes':    10,
+    },
 
     'DQN_SBG': {
         'envy_type':        SimpleBoardGame,
         'envy_point':       {'board_size':6},
         'actor_type':       DQNActor,
         'actor_point':      {
+            'exploration':      0.5,
+            'sampled_TR':       0.3,
+            'batch_size':       10,
+            'mem_batches':      10,
+            'sample_memory':    True,
             'gamma':            0.5,
             'motorch_point':    {
                 'n_hidden':         1,
                 'hidden_width':     12,
                 'baseLR':           0.01},
         },
-        'num_updates':      200,
-        'batch_size':       10,
-        'mem_batches':      10,
-        'sample_memory':    True,
-        'exploration':      0.5,
-        'sampled_TR':       0.3,
-        'test_freq':        10},
+        'num_batches':      200,
+        'test_freq':        10,
+        'test_episodes':    10,
+    },
 
     ### CartPole
 
@@ -63,19 +66,18 @@ RUN_CONFIGS = {
             'lost_reward':      0.0},
         'actor_type': DQNActor,
         'actor_point': {
-            'gamma': 0.95,
-            'motorch_point': {
+            'exploration':      0.3,
+            'sampled_TR':       0.0,
+            'batch_size':       100,
+            'mem_batches':      5,
+            'sample_memory':    True,
+            'gamma':            0.95,
+            'motorch_point':    {
                 'n_hidden':         2,
                 'hidden_width':     20,
                 'baseLR':           0.001},
         },
-        # RLRunner.train()
-        'num_updates':      1500,
-        'batch_size':       100,
-        'mem_batches':      5,
-        'sample_memory':    True,
-        'exploration':      0.3,
-        'sampled_TR':       0.0,
+        'num_batches':      1500,
         'test_freq':        50,
         'test_episodes':    10,
     },
@@ -88,6 +90,9 @@ RUN_CONFIGS = {
             'lost_reward':      0.0},
         'actor_type':       PGActor,
         'actor_point':      {
+            'exploration':      0.17,#0.84,
+            'sampled_TR':       0.88,#0.7,
+            'batch_size':       64,#128,
             'discount':         0.96,#0.99,
             'use_mavg':         False,
             'mavg_factor':      0.3,
@@ -99,11 +104,8 @@ RUN_CONFIGS = {
                 #'lay_norm':         True,
                 #'use_scaled_ce':    True,
                 #'do_clip':          True,
-            },},
-        'num_updates':      700,
-        'batch_size':       64,#128,
-        'exploration':      0.17,#0.84,
-        'sampled_TR':       0.88,#0.7,
+        },},
+        'num_batches':      700,
         'test_freq':        50,
         'test_episodes':    10,
     },
@@ -111,10 +113,14 @@ RUN_CONFIGS = {
     'AC_CP': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
-            'reward_scale': 0.1,
-            'lost_penalty': -10.0},
+            'step_reward':      0.1,
+            'won_reward':       0.1,
+            'lost_reward':      0.0},
         'actor_type':       ACActor,
         'actor_point':      {
+            'exploration':      0.1,
+            'sampled_TR':       0.0,
+            'batch_size':       256,
             'discount':         0.98,
             'use_mavg':         False,
             'mavg_factor':      0.3,
@@ -122,14 +128,15 @@ RUN_CONFIGS = {
             'critic_class':     ACCritic,
             'critic_gamma':     0.99,
             'critic_baseLR':    0.0005,
-            'hidden_layers':    (20,20),
-            'baseLR':           0.0005},
-        'num_updates':      1000,
-        'batch_size':       256,
-        'exploration':      0.1,
-        'sampled_TR':       0.0,
+            'motorch_point':    {
+                'n_hidden':         2,
+                'hidden_width':     20,
+                'baseLR':           0.0005,
+            },},
+        'num_batches':      1000,
         'test_freq':        50,
-        'test_episodes':    10},
+        'test_episodes':    10,
+    },
 
     'A2C_CP': {
         'envy_type':        CartPoleEnvy,
@@ -139,6 +146,9 @@ RUN_CONFIGS = {
             'lost_reward':      0.0},
         'actor_type':       A2CActor,
         'actor_point':      {
+            'exploration':      0.25,#0.4,
+            'sampled_TR':       0.96,#0.3,
+            'batch_size':       64,
             'discount':         0.66,#0.82,
             'use_mavg':         False,
             'mavg_factor':      0.12,
@@ -154,10 +164,7 @@ RUN_CONFIGS = {
                 'baseLR':           0.03,
                 #'do_clip':          True,
             },},
-        'num_updates':      700,
-        'batch_size':       64,
-        'exploration':      0.25,#0.4,
-        'sampled_TR':       0.96,#0.3,
+        'num_batches':      700,
         'test_freq':        50,
         'test_episodes':    10,
     },
@@ -167,23 +174,27 @@ RUN_CONFIGS = {
     'AC_ACR': {
         'envy_type':        AcrobotEnvy,
         'envy_point':       {},
-        'actor_type':       PGActor,
-        'actor_point':      {'baseLR':0.01},
-        'trainer_point':    {
-            'critic_class':     ACCritic,
-            'critic_gamma':     0.99,
-            'critic_baseLR':    0.1,
-            'batch_size':       500,
+        'actor_type':       ACActor,
+        'actor_point':      {
             'exploration':      0.1,
-            'train_sampled':    0.0,
+            'sampled_TR':       0.0,
+            'batch_size':       500,
             'discount':         0.98,
             'use_mavg':         False,
             'mavg_factor':      0.3,
-            'do_zscore':        False},
-        'num_updates':      500,
-        'upd_on_episode':   True,
+            'do_zscore':        False,
+            'critic_class':     ACCritic,
+            'critic_gamma':     0.99,
+            'critic_baseLR':    0.1,
+            'motorch_point':    {
+                'n_hidden':         2,
+                'hidden_width':     20,
+                'baseLR':           0.01,
+        },},
+        'num_batches':      500,
         'test_freq':        20,
-        'test_episodes':    10},
+        'test_episodes':    10,
+    },
 
 }
 
@@ -231,21 +242,16 @@ def run_actor_training(
         **actor_point)
     logger.info(actor)
 
-    runner = RLRunner(
-        envy=       envy,
-        actor=      actor,
-        seed=       seed,
-        logger=     logger)
+    max_steps = train_point['test_max_steps'] if 'test_max_steps' in train_point else None
 
     if inspect:
-        max_steps = train_point['test_max_steps'] if 'test_max_steps' in train_point else None
-        runner.play_episode(max_steps=max_steps, inspect=True)
+        actor.run_play(steps=max_steps, inspect=True)
 
     if nTS_ep:
-        ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
+        ts_res = actor.test_on_episodes(n_episodes=nTS_ep, max_steps=max_steps)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
-    tr_res = runner.train(**train_point, inspect=inspect)
+    tr_res = actor.run_train(**train_point, inspect=inspect)
 
     if not hpmser_mode:
         actor.save()
@@ -259,11 +265,10 @@ def run_actor_training(
         logger.info(tr_nfo)
 
     if inspect:
-        max_steps = train_point['test_max_steps'] if 'test_max_steps' in train_point else None
-        runner.play_episode(max_steps=max_steps, inspect=True)
+        actor.run_play(steps=max_steps, inspect=True)
 
     if nTS_ep:
-        ts_res = runner.test_on_episodes(n_episodes=nTS_ep)
+        ts_res = actor.test_on_episodes(n_episodes=nTS_ep, max_steps=max_steps)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     return tr_res
@@ -278,9 +283,9 @@ if __name__ == "__main__":
         #'DQN_CP',
         #'PG_CP',
         #'AC_CP',
-        'A2C_CP',
+        #'A2C_CP',
 
-        #'AC_ACR',
+        'AC_ACR',
     ]:
         run_actor_training(
             nTS_ep=     10,
