@@ -277,11 +277,11 @@ def run_actor_training(
 if __name__ == "__main__":
 
     for run_config_name in [
-        'QTable_SBG',
+        #'QTable_SBG',
         #'DQN_SBG',
 
         #'DQN_CP',
-        #'PG_CP',
+        'PG_CP',
         #'AC_CP',
         #'A2C_CP',
 
