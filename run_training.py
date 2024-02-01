@@ -277,7 +277,7 @@ def run_actor_training(
 if __name__ == "__main__":
 
     for run_config_name in [
-        #'QTable_SBG',
+        'QTable_SBG',
         #'DQN_SBG',
 
         #'DQN_CP',
@@ -285,7 +285,7 @@ if __name__ == "__main__":
         #'AC_CP',
         #'A2C_CP',
 
-        'AC_ACR',
+        #'AC_ACR',
     ]:
         run_actor_training(
             nTS_ep=     10,
