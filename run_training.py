@@ -1,5 +1,6 @@
 from pypaq.lipytools.pylogger import get_pylogger
 from pypaq.lipytools.printout import stamp
+from pypaq.pms.base import POINT
 
 
 from r4c.envy import RLEnvy
@@ -100,7 +101,7 @@ RUN_CONFIGS = {
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     41,#27,
-                'baseLR':           0.01,#0.03,
+                'baseLR':           0.03,
                 #'lay_norm':         True,
                 #'use_scaled_ce':    True,
                 #'do_clip':          True,
@@ -203,10 +204,10 @@ RUN_CONFIGS = {
 
 def run_actor_training(
         envy_type: type(RLEnvy),
-        envy_point: dict,       # for Envy init
+        envy_point: POINT,
         actor_type: type(TrainableActor),
-        actor_point: dict,      # for Actor init
-        nTS_ep=         100,
+        actor_point: POINT,
+        num_TS_ep=      100,
         seed=           121,
         loglevel=       20,
         save_topdir=    '_models',
@@ -215,9 +216,9 @@ def run_actor_training(
         **train_point,          # for RLRunner.train()
 ) -> dict:
 
-    # early override
+    # early override in hpmser_mode
     if hpmser_mode:
-        nTS_ep = 0
+        num_TS_ep = 0
         loglevel = 50
 
     name = f'{actor_type.__name__}_{envy_type.__name__}_{stamp()}'
@@ -244,13 +245,13 @@ def run_actor_training(
         **actor_point)
     logger.info(actor)
 
-    max_steps = train_point['test_max_steps'] if 'test_max_steps' in train_point else None
+    max_steps = train_point.get('test_max_steps', None)
 
     if inspect:
         actor.run_play(steps=max_steps, inspect=True)
 
-    if nTS_ep:
-        ts_res = actor.test_on_episodes(n_episodes=nTS_ep, max_steps=max_steps)
+    if num_TS_ep:
+        ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     tr_res = actor.run_train(**train_point, inspect=inspect)
@@ -269,8 +270,8 @@ def run_actor_training(
     if inspect:
         actor.run_play(steps=max_steps, inspect=True)
 
-    if nTS_ep:
-        ts_res = actor.test_on_episodes(n_episodes=nTS_ep, max_steps=max_steps)
+    if num_TS_ep:
+        ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     return tr_res
@@ -283,14 +284,14 @@ if __name__ == "__main__":
         #'DQN_SBG',
 
         #'DQN_CP',
-        #'PG_CP',
-        'AC_CP',
+        'PG_CP',
+        #'AC_CP',
         #'A2C_CP',
 
         #'AC_ACR',
     ]:
         run_actor_training(
-            nTS_ep=     10,
+            num_TS_ep=     10,
             #loglevel=   5,
             #inspect=    True,
             **RUN_CONFIGS[run_config_name])

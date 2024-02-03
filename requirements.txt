@@ -1,6 +1,6 @@
 gym==0.23.1
 hpmser
-pygame==2.1.2
+pygame
 pypaq
 r4c
 torchness
