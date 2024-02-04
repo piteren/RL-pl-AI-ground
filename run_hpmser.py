@@ -58,7 +58,7 @@ if __name__ == "__main__":
         'DQN_CP': {
             'psdd': {
                 'act_exploration':      [0.0,0.9],
-                'act_sampled_TR':       [0.0,0.9],
+                'act_sample_TR':        [0.0,0.9],
                 'act_batch_size':       (8,16,32,64,128,256),
                 'act_mem_batches':      [1,20],
                 'act_gamma':            [0.5, 0.99],
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         'PG_CP': {
             'psdd': {
                 'act_exploration':      [0.0,1.0],
-                'act_sampled_TR':       [0.0,1.0],
+                'act_sample_TR':        [0.0,1.0],
                 'act_batch_size':       (8,16,32,64,128,256),
                 'act_discount':         [0.5,1.0],
                 'mot_n_hidden':         [1,3],
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         'AC_CP': {
             'psdd': {
                 'act_exploration':          [0.0,1.0],
-                'act_sampled_TR':           [0.0,1.0],
+                'act_sample_TR':            [0.0,1.0],
                 'act_batch_size':           (8,16,32,64,128,256),
                 'act_discount':             [0.5,1.0],
                 'act_critic_gamma':         [0.0,1.0],
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         'A2C_CP': {
             'psdd': {
                 'act_exploration':      [0.0,1.0],
-                'act_sampled_TR':       [0.0,1.0],
+                'act_sample_TR':        [0.0,1.0],
                 'act_batch_size':       (8,16,32,64,128,256),
                 'act_discount':         [0.0,1.0],
                 'mot_two_towers':       (True, False),

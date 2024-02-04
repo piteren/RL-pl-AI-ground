@@ -6,11 +6,8 @@ from typing import List, Optional
 
 
 class SimpleBoardGame(FiniteActionsRLEnvy):
-    """
-    Is a finite actions, finite states Envy.
-    Gots N fields on the board,
-    task is to get into each field once, after that game is won.
-    """
+    """ SimpleBoardGame has N fields on the board,
+    task is to get into each field once, after that game is won """
 
     def __init__(self, board_size= 4, **kwargs):
 
@@ -47,18 +44,15 @@ class SimpleBoardGame(FiniteActionsRLEnvy):
     def reset_with_seed(self, seed:int):
         self.__state = [0] * self.__board_size
 
-
+    @property
     def max_steps(self) -> Optional[int]:
         return self.__board_size
-
 
     def render(self):
         print(self.__state)
 
-
     def observation_vector(self, observation:List[int]) -> np.ndarray:
         return np.asarray(observation, dtype=int)
-
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__board_size))
@@ -89,10 +83,10 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
         self.reset()
 
     def _lost_episode(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps()
+        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps
 
     def has_won(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps()
+        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps
 
     def is_terminal(self) -> bool:
         return self._lost_episode() or self.has_won()
@@ -115,6 +109,7 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
         self.__gym_envy.reset(seed=seed)
         self.__is_over = False
 
+    @property
     def max_steps(self) -> Optional[int]:
         return self.__gym_envy._max_episode_steps
 
@@ -143,10 +138,10 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
         self.reset()
 
     def _lost_episode(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps()
+        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps
 
     def has_won(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps()
+        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps
 
     def is_terminal(self) -> bool:
         return self._lost_episode() or self.has_won()
@@ -164,6 +159,7 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
         self.__gym_envy.reset(seed=seed)
         self.__is_over = False
 
+    @property
     def max_steps(self) -> Optional[int]:
         return self.__gym_envy._max_episode_steps
 
@@ -175,18 +171,3 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
 
     def get_valid_actions(self) -> List[int]:
         return list(range(self.__gym_envy.action_space.n))
-
-
-if __name__ == "__main__":
-
-    for et in [
-        SimpleBoardGame,
-        CartPoleEnvy,
-        AcrobotEnvy
-    ]:
-        print(et)
-        envy = et(seed=123)
-        obs = envy.get_observation()
-        print(type(obs), obs)
-        obs_vec = envy.observation_vector(obs)
-        print(type(obs_vec), obs_vec)

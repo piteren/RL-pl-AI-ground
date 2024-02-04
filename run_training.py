@@ -1,6 +1,7 @@
 from pypaq.lipytools.pylogger import get_pylogger
 from pypaq.lipytools.printout import stamp
 from pypaq.pms.base import POINT
+from typing import Dict
 
 
 from r4c.envy import RLEnvy
@@ -25,7 +26,7 @@ RUN_CONFIGS = {
         'actor_type':       QTableActor,
         'actor_point':      {
             'exploration':      0.5,
-            'sampled_TR':       0.1,
+            'sample_TR':        0.1,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
@@ -42,7 +43,7 @@ RUN_CONFIGS = {
         'actor_type':       DQNActor,
         'actor_point':      {
             'exploration':      0.5,
-            'sampled_TR':       0.3,
+            'sample_TR':        0.3,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
@@ -68,7 +69,7 @@ RUN_CONFIGS = {
         'actor_type': DQNActor,
         'actor_point': {
             'exploration':      0.3,
-            'sampled_TR':       0.0,
+            'sample_TR':        0.0,
             'batch_size':       100,
             'mem_batches':      5,
             'sample_memory':    True,
@@ -92,11 +93,11 @@ RUN_CONFIGS = {
         'actor_type':       PGActor,
         'actor_point':      {
             'exploration':      0.17,#0.84,
-            'sampled_TR':       0.88,#0.7,
+            'sample_TR':        0.88,#0.7,
             'batch_size':       64,#128,
             'discount':         0.96,#0.99,
-            'use_mavg':         False,
-            'mavg_factor':      0.3,
+            'use_bmav':         False,
+            'bmav_factor':      0.3,
             'do_zscore':        False,
             'motorch_point': {
                 'n_hidden':         1,
@@ -112,6 +113,32 @@ RUN_CONFIGS = {
         'test_episodes':    10,
     },
 
+    'PG_CP_exp': {
+        'envy_type':        CartPoleEnvy,
+        'envy_point':       {
+            'step_reward':      0.0,
+            'won_reward':       1.0,
+            'lost_reward':      -1.0},
+        'actor_type':       PGActor,
+        'actor_point':      {
+            'exploration':      0.2,
+            'sample_TR':        0.9,
+            'batch_size':       128,
+            'discount':         0.95,
+            'use_bmav':         False,
+            'bmav_factor':      0.1,
+            'do_zscore':        False,
+            'motorch_point': {
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3,
+            },
+        },
+        'num_batches':      1000,
+        'test_freq':        50,
+        'test_episodes':    10,
+    },
+
     'AC_CP': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
@@ -121,11 +148,11 @@ RUN_CONFIGS = {
         'actor_type':       ACActor,
         'actor_point':      {
             'exploration':      0.1,
-            'sampled_TR':       0.0,
+            'sample_TR':        0.0,
             'batch_size':       256,
             'discount':         0.98,
-            'use_mavg':         False,
-            'mavg_factor':      0.3,
+            'use_bmav':         False,
+            'bmav_factor':      0.3,
             'do_zscore':        False,
             'critic_class':     ACCritic,
             'critic_gamma':     0.99,
@@ -150,11 +177,11 @@ RUN_CONFIGS = {
         'actor_type':       A2CActor,
         'actor_point':      {
             'exploration':      0.25,#0.4,
-            'sampled_TR':       0.96,#0.3,
+            'sample_TR':        0.96,#0.3,
             'batch_size':       64,
             'discount':         0.66,#0.82,
-            'use_mavg':         False,
-            'mavg_factor':      0.12,
+            'use_bmav':         False,
+            'bmav_factor':      0.12,
             'do_zscore':        False,
             'motorch_point':    {
                 'two_towers':       True,
@@ -180,11 +207,11 @@ RUN_CONFIGS = {
         'actor_type':       ACActor,
         'actor_point':      {
             'exploration':      0.1,
-            'sampled_TR':       0.0,
+            'sample_TR':        0.0,
             'batch_size':       500,
             'discount':         0.98,
-            'use_mavg':         False,
-            'mavg_factor':      0.3,
+            'use_bmav':         False,
+            'bmav_factor':      0.3,
             'do_zscore':        False,
             'critic_class':     ACCritic,
             'critic_gamma':     0.99,
@@ -207,14 +234,14 @@ def run_actor_training(
         envy_point: POINT,
         actor_type: type(TrainableActor),
         actor_point: POINT,
-        num_TS_ep=      100,
-        seed=           121,
-        loglevel=       20,
-        save_topdir=    '_models',
-        hpmser_mode=    False,
-        inspect=        False,
-        **train_point,          # for RLRunner.train()
-) -> dict:
+        num_TS_ep=          100,
+        seed=               121,
+        loglevel=           20,
+        save_topdir=        '_models',
+        hpmser_mode=        False,
+        picture: bool=      False,
+        **train_point,  # for RLRunner.train()
+) -> Dict:
 
     # early override in hpmser_mode
     if hpmser_mode:
@@ -233,7 +260,7 @@ def run_actor_training(
         seed=       seed,
         logger=     logger,
         **envy_point)
-    logger.info(envy)
+    logger.debug(envy)
 
     actor = actor_type(
         name=           name,
@@ -243,18 +270,15 @@ def run_actor_training(
         logger=         logger,
         hpmser_mode=    hpmser_mode,
         **actor_point)
-    logger.info(actor)
+    logger.debug(actor)
 
     max_steps = train_point.get('test_max_steps', None)
-
-    if inspect:
-        actor.run_play(steps=max_steps, inspect=True)
 
     if num_TS_ep:
         ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
-    tr_res = actor.run_train(**train_point, inspect=inspect)
+    tr_res = actor.run_train(**train_point, picture=picture)
 
     if not hpmser_mode:
         actor.save()
@@ -266,9 +290,6 @@ def run_actor_training(
         tr_nfo += f'> number of wins (n_won):                                     {tr_res["n_won"]}\n'
         tr_nfo += f'> max number of succeeded tests in a row (succeeded_row_max): {tr_res["succeeded_row_max"]}'
         logger.info(tr_nfo)
-
-    if inspect:
-        actor.run_play(steps=max_steps, inspect=True)
 
     if num_TS_ep:
         ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
@@ -284,14 +305,15 @@ if __name__ == "__main__":
         #'DQN_SBG',
 
         #'DQN_CP',
-        'PG_CP',
+        #'PG_CP',
+        'PG_CP_exp',
         #'AC_CP',
         #'A2C_CP',
 
         #'AC_ACR',
     ]:
         run_actor_training(
-            num_TS_ep=     10,
+            num_TS_ep=  10,
             #loglevel=   5,
-            #inspect=    True,
+            #picture=    True,
             **RUN_CONFIGS[run_config_name])
