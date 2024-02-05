@@ -96,8 +96,6 @@ RUN_CONFIGS = {
             'sample_TR':        0.88,#0.7,
             'batch_size':       64,#128,
             'discount':         0.96,#0.99,
-            'use_bmav':         False,
-            'bmav_factor':      0.3,
             'do_zscore':        False,
             'motorch_point': {
                 'n_hidden':         1,
@@ -116,7 +114,7 @@ RUN_CONFIGS = {
     'PG_CP_exp': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
-            'step_reward':      0.0,
+            'step_reward':      0.1,
             'won_reward':       1.0,
             'lost_reward':      -1.0},
         'actor_type':       PGActor,
@@ -125,9 +123,6 @@ RUN_CONFIGS = {
             'sample_TR':        0.9,
             'batch_size':       128,
             'discount':         0.95,
-            'use_bmav':         False,
-            'bmav_factor':      0.1,
-            'do_zscore':        False,
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
@@ -151,8 +146,6 @@ RUN_CONFIGS = {
             'sample_TR':        0.0,
             'batch_size':       256,
             'discount':         0.98,
-            'use_bmav':         False,
-            'bmav_factor':      0.3,
             'do_zscore':        False,
             'critic_class':     ACCritic,
             'critic_gamma':     0.99,
@@ -180,8 +173,6 @@ RUN_CONFIGS = {
             'sample_TR':        0.96,#0.3,
             'batch_size':       64,
             'discount':         0.66,#0.82,
-            'use_bmav':         False,
-            'bmav_factor':      0.12,
             'do_zscore':        False,
             'motorch_point':    {
                 'two_towers':       True,
@@ -210,8 +201,6 @@ RUN_CONFIGS = {
             'sample_TR':        0.0,
             'batch_size':       500,
             'discount':         0.98,
-            'use_bmav':         False,
-            'bmav_factor':      0.3,
             'do_zscore':        False,
             'critic_class':     ACCritic,
             'critic_gamma':     0.99,
