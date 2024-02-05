@@ -114,13 +114,12 @@ RUN_CONFIGS = {
     'PG_CP_exp': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
-            'step_reward':      0.1,
-            'won_reward':       1.0,
-            'lost_reward':      -1.0},
+            'step_reward':      0.01,
+            'won_reward':       0.0,
+            'lost_reward':     -1.0},
         'actor_type':       PGActor,
         'actor_point':      {
-            'exploration':      0.2,
-            'sample_TR':        0.9,
+            'sample_TR':        1.0,
             'batch_size':       128,
             'discount':         0.95,
             'motorch_point': {
@@ -129,8 +128,8 @@ RUN_CONFIGS = {
                 'baseLR':           1e-3,
             },
         },
-        'num_batches':      1000,
-        'test_freq':        50,
+        'num_batches':      500,
+        'test_freq':        100,
         'test_episodes':    10,
     },
 
@@ -261,12 +260,6 @@ def run_actor_training(
         **actor_point)
     logger.debug(actor)
 
-    max_steps = train_point.get('test_max_steps', None)
-
-    if num_TS_ep:
-        ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
-        logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
-
     tr_res = actor.run_train(**train_point, picture=picture)
 
     if not hpmser_mode:
@@ -281,7 +274,7 @@ def run_actor_training(
         logger.info(tr_nfo)
 
     if num_TS_ep:
-        ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=max_steps)
+        ts_res = actor.test_on_episodes(n_episodes=num_TS_ep, max_steps=train_point.get('test_max_steps', None))
         logger.info(f'Test report: won factor: {int(ts_res[0]*100)}%, avg reward: {ts_res[1]:.1f}')
 
     return tr_res
