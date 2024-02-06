@@ -125,7 +125,8 @@ RUN_CONFIGS = {
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
-                'baseLR':           1e-3,
+                'baseLR':           1e-4,
+                #'lay_norm':         True,
             },
         },
         'num_batches':      500,
