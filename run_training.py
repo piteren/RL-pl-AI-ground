@@ -156,7 +156,7 @@ RUN_CONFIGS = {
             },
         },
         'num_batches':      1000,
-        'test_freq':        50,
+        'test_freq':        100,
         'test_episodes':    10,
     },
 
@@ -296,6 +296,6 @@ if __name__ == "__main__":
     ]:
         run_actor_training(
             num_TS_ep=  10,
-            #loglevel=   5,
+            #loglevel=   10,
             #picture=    True,
             **RUN_CONFIGS[run_config_name])
