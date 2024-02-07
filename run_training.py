@@ -87,33 +87,6 @@ RUN_CONFIGS = {
     'PG_CP': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
-            'step_reward':      0.1,
-            'won_reward':       0.1,
-            'lost_reward':      0.0},
-        'actor_type':       PGActor,
-        'actor_point':      {
-            'exploration':      0.17,#0.84,
-            'sample_TR':        0.88,#0.7,
-            'batch_size':       64,#128,
-            'discount':         0.96,#0.99,
-            'do_zscore':        False,
-            'motorch_point': {
-                'n_hidden':         1,
-                'hidden_width':     41,#27,
-                'baseLR':           0.03,
-                #'lay_norm':         True,
-                #'use_scaled_ce':    True,
-                #'do_clip':          True,
-            },
-        },
-        'num_batches':      700,
-        'test_freq':        50,
-        'test_episodes':    10,
-    },
-
-    'PG_CP_exp': {
-        'envy_type':        CartPoleEnvy,
-        'envy_point':       {
             'step_reward':      0.01,
             'won_reward':       0.0,
             'lost_reward':     -1.0},
@@ -125,39 +98,37 @@ RUN_CONFIGS = {
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
-                'baseLR':           1e-4,
-                #'lay_norm':         True,
+                'baseLR':           1e-3,
             },
         },
         'num_batches':      500,
-        'test_freq':        100,
+        'test_freq':        50,
         'test_episodes':    10,
     },
 
     'AC_CP': {
         'envy_type':        CartPoleEnvy,
         'envy_point':       {
-            'step_reward':      0.1,
-            'won_reward':       0.1,
-            'lost_reward':      0.0},
+            'step_reward':      0.01,
+            'won_reward':       0.0,
+            'lost_reward':     -1.0},
         'actor_type':       ACActor,
         'actor_point':      {
-            'exploration':      0.1,
-            'sample_TR':        0.0,
-            'batch_size':       256,
-            'discount':         0.98,
-            'do_zscore':        False,
+            'sample_TR':        1.0,
+            'batch_size':       128,
             'critic_class':     ACCritic,
-            'critic_gamma':     0.99,
-            'critic_baseLR':    0.0005,
+            'critic_gamma':     0.95,
+            'critic_n_hidden':  1,
+            'critic_hidden_width': 30,
+            'critic_baseLR':    1e-3,
             'motorch_point':    {
-                'n_hidden':         2,
-                'hidden_width':     20,
-                'baseLR':           0.0005,
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3,
             },
         },
-        'num_batches':      1000,
-        'test_freq':        100,
+        'num_batches':      1500,
+        'test_freq':        50,
         'test_episodes':    10,
     },
 
@@ -286,13 +257,10 @@ if __name__ == "__main__":
     for run_config_name in [
         #'QTable_SBG',
         #'DQN_SBG',
-
         #'DQN_CP',
         #'PG_CP',
-        'PG_CP_exp',
-        #'AC_CP',
+        'AC_CP',
         #'A2C_CP',
-
         #'AC_ACR',
     ]:
         run_actor_training(
