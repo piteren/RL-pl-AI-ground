@@ -3,7 +3,6 @@ from pypaq.lipytools.printout import stamp
 from pypaq.pms.base import POINT
 from typing import Dict
 
-
 from r4c.envy import RLEnvy
 from r4c.actor import TrainableActor
 from r4c.qlearning.qtable.qt_actor import QTableActor
@@ -26,7 +25,6 @@ RUN_CONFIGS = {
         'actor_type':       QTableActor,
         'actor_point':      {
             'exploration':      0.5,
-            'sample_TR':        0.1,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
@@ -43,7 +41,6 @@ RUN_CONFIGS = {
         'actor_type':       DQNActor,
         'actor_point':      {
             'exploration':      0.5,
-            'sample_TR':        0.3,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
@@ -63,21 +60,20 @@ RUN_CONFIGS = {
     'DQN_CP': {
         'envy_type': CartPoleEnvy,
         'envy_point':       {
-            'step_reward':      0.1,
-            'won_reward':       0.1,
-            'lost_reward':      0.0},
+            'step_reward':      0.01,
+            'won_reward':       0.0,
+            'lost_reward':     -1.0},
         'actor_type': DQNActor,
         'actor_point': {
-            'exploration':      0.3,
-            'sample_TR':        0.0,
-            'batch_size':       100,
+            'exploration':      0.6,
+            'batch_size':       128,
             'mem_batches':      5,
             'sample_memory':    True,
             'gamma':            0.95,
             'motorch_point':    {
-                'n_hidden':         2,
-                'hidden_width':     20,
-                'baseLR':           0.001},
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3},
         },
         'num_batches':      1500,
         'test_freq':        50,
@@ -250,12 +246,12 @@ def run_actor_training(
 if __name__ == "__main__":
 
     for run_config_name in [
-        #'QTable_SBG',
+        'QTable_SBG',
         #'DQN_SBG',
         #'DQN_CP',
         #'PG_CP',
         #'AC_CP',
-        'A2C_CP',
+        #'A2C_CP',
         #'AC_ACR',
     ]:
         run_actor_training(
