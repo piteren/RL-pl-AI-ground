@@ -50,7 +50,7 @@ RUN_CONFIGS = {
                 'hidden_width':     12,
                 'baseLR':           0.01},
         },
-        'num_batches':      200,
+        'num_batches':      1000,
         'test_freq':        10,
         'test_episodes':    10,
     },
@@ -246,8 +246,8 @@ def run_actor_training(
 if __name__ == "__main__":
 
     for run_config_name in [
-        'QTable_SBG',
-        #'DQN_SBG',
+        #'QTable_SBG',
+        'DQN_SBG',
         #'DQN_CP',
         #'PG_CP',
         #'AC_CP',
