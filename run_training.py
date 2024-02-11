@@ -11,6 +11,8 @@ from r4c.policy_gradients.pg_actor import PGActor
 from r4c.policy_gradients.actor_critic.ac_actor import ACActor
 from r4c.policy_gradients.actor_critic.ac_critic import ACCritic
 from r4c.policy_gradients.a2c.a2c_actor import A2CActor
+from r4c.policy_gradients.ppo.ppo_actor import PPOActor
+from r4c.policy_gradients.ppo.ppo_critic import PPOCritic
 
 from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy
 
@@ -152,6 +154,30 @@ RUN_CONFIGS = {
         'test_episodes':    10,
     },
 
+    'PPO_CP': {
+        'envy_type':        CartPoleEnvy,
+        'envy_point':       {
+            'step_reward':      0.01,
+            'won_reward':       0.0,
+            'lost_reward':     -1.0},
+        'actor_type':       PPOActor,
+        'actor_point':      {
+            'sample_TR':        1.0,
+            'batch_size':       128,
+            # TODO: split_batch
+            'critic_class':     PPOCritic,
+            #'discount':         0.95,
+            'motorch_point': {
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3,
+            },
+        },
+        'num_batches':      500,
+        'test_freq':        50,
+        'test_episodes':    10,
+    },
+
     ### Acrobot
 
     'AC_ACR': {
@@ -252,6 +278,7 @@ if __name__ == "__main__":
         'PG_CP',
         #'AC_CP',
         #'A2C_CP',
+        #'PPO_CP',
         #'AC_ACR',
     ]:
         run_actor_training(
