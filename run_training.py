@@ -165,13 +165,14 @@ RUN_CONFIGS = {
             'sample_TR':        1.0,
             'batch_size':       128,
             # TODO: split_batch
-            'critic_class':     PPOCritic,
-            #'discount':         0.95,
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
                 'baseLR':           1e-3,
             },
+            'critic_motorch_point': {
+                'hidden_width':     14,
+            }
         },
         'num_batches':      500,
         'test_freq':        50,
@@ -275,10 +276,10 @@ if __name__ == "__main__":
         #'QTable_SBG',
         #'DQN_SBG',
         #'DQN_CP',
-        'PG_CP',
+        #'PG_CP',
         #'AC_CP',
         #'A2C_CP',
-        #'PPO_CP',
+        'PPO_CP',
         #'AC_ACR',
     ]:
         run_actor_training(
