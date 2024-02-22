@@ -8,8 +8,8 @@ class TestSBG(unittest.TestCase):
     def test_SimpleBoardGame(self):
 
         game = SimpleBoardGame(board_size=5)
-        print(game.num_actions(), game.get_valid_actions())
-        self.assertTrue(game.num_actions() == 5)
+        print(game.num_actions, game.get_valid_actions())
+        self.assertTrue(game.num_actions == 5)
         self.assertFalse(game.lost_episode())
 
         game.run(0)

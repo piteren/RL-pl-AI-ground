@@ -9,10 +9,8 @@ from r4c.qlearning.qtable.qt_actor import QTableActor
 from r4c.qlearning.dqn.dqn_actor import DQNActor
 from r4c.policy_gradients.pg_actor import PGActor
 from r4c.policy_gradients.actor_critic.ac_actor import ACActor
-from r4c.policy_gradients.actor_critic.ac_critic import ACCritic
 from r4c.policy_gradients.a2c.a2c_actor import A2CActor
 from r4c.policy_gradients.ppo.ppo_actor import PPOActor
-from r4c.policy_gradients.ppo.ppo_critic import PPOCritic
 
 from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy
 
@@ -27,10 +25,11 @@ RUN_CONFIGS = {
         'actor_type':       QTableActor,
         'actor_point':      {
             'exploration':      0.5,
+            'discount':         0.5,
+            'do_zscore':        False,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
-            'gamma':            0.5,
             'update_rate':      0.5},
         'num_batches':      100,
         'test_freq':        10,
@@ -43,10 +42,11 @@ RUN_CONFIGS = {
         'actor_type':       DQNActor,
         'actor_point':      {
             'exploration':      0.5,
+            'discount':         0.5,
+            'do_zscore':        False,
             'batch_size':       10,
             'mem_batches':      10,
             'sample_memory':    True,
-            'gamma':            0.5,
             'motorch_point':    {
                 'n_hidden':         1,
                 'hidden_width':     12,
@@ -68,10 +68,11 @@ RUN_CONFIGS = {
         'actor_type': DQNActor,
         'actor_point': {
             'exploration':      0.6,
+            'discount':         0.95,
+            'do_zscore':        False,
             'batch_size':       128,
             'mem_batches':      5,
             'sample_memory':    True,
-            'gamma':            0.95,
             'motorch_point':    {
                 'n_hidden':         1,
                 'hidden_width':     30,
@@ -90,9 +91,12 @@ RUN_CONFIGS = {
             'lost_reward':     -1.0},
         'actor_type':       PGActor,
         'actor_point':      {
-            'sample_TR':        1.0,
-            'batch_size':       128,
+            'exploration':      0.0,
             'discount':         0.95,
+            'do_zscore':        False,
+            'batch_size':       128,
+            'sample_PL':        0.0,
+            'sample_TR':        1.0,
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
@@ -112,18 +116,23 @@ RUN_CONFIGS = {
             'lost_reward':     -1.0},
         'actor_type':       ACActor,
         'actor_point':      {
-            'sample_TR':        1.0,
+            'exploration':      0.0,
+            'discount':         0.95,
+            'do_zscore':        False,
             'batch_size':       128,
-            'critic_class':     ACCritic,
-            'critic_gamma':     0.95,
-            'critic_n_hidden':  1,
-            'critic_hidden_width': 30,
-            'critic_baseLR':    1e-3,
+            'sample_PL':        0.0,
+            'sample_TR':        1.0,
             'motorch_point':    {
                 'n_hidden':         1,
                 'hidden_width':     30,
                 'baseLR':           1e-3,
             },
+            'critic_motorch_point': {
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3,
+            }
+
         },
         'num_batches':      1500,
         'test_freq':        50,
@@ -138,9 +147,12 @@ RUN_CONFIGS = {
             'lost_reward':     -1.0},
         'actor_type':       A2CActor,
         'actor_point':      {
-            'sample_TR':        1.0,
-            'batch_size':       128,
+            'exploration':      0.0,
             'discount':         0.95,
+            'do_zscore':        False,
+            'batch_size':       128,
+            'sample_PL':        0.0,
+            'sample_TR':        1.0,
             'motorch_point':    {
                 'two_towers':       True,
                 'n_hidden':         1,
@@ -162,8 +174,12 @@ RUN_CONFIGS = {
             'lost_reward':     -1.0},
         'actor_type':       PPOActor,
         'actor_point':      {
-            'sample_TR':        1.0,
+            'exploration':      0.0,
+            'discount':         0.95,
+            'do_zscore':        False,
             'batch_size':       128,
+            'sample_PL':        0.0,
+            'sample_TR':        1.0,
             # TODO: split_batch
             'motorch_point': {
                 'n_hidden':         1,
@@ -187,18 +203,20 @@ RUN_CONFIGS = {
         'actor_type':       ACActor,
         'actor_point':      {
             'exploration':      0.1,
-            'sample_TR':        0.0,
-            'batch_size':       500,
-            'discount':         0.98,
+            'discount':         0.95,
             'do_zscore':        False,
-            'critic_class':     ACCritic,
-            'critic_gamma':     0.99,
-            'critic_baseLR':    0.1,
+            'batch_size':       500,
+            'sample_PL':        0.0,
+            'sample_TR':        0.0,
             'motorch_point':    {
                 'n_hidden':         2,
                 'hidden_width':     20,
                 'baseLR':           0.01,
-        },},
+            },
+            'critic_motorch_point': {
+                'baseLR':           0.1,
+            }
+        },
         'num_batches':      500,
         'test_freq':        20,
         'test_episodes':    10,

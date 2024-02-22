@@ -28,7 +28,7 @@ class TestEnvies(unittest.TestCase):
         ]:
 
             envy = et()
-            print(envy.num_actions(), envy.get_valid_actions())
+            print(envy.num_actions, envy.get_valid_actions())
             print(envy.get_observation())
             print(envy.has_won())
 
