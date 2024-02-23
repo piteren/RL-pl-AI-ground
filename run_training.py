@@ -180,11 +180,12 @@ RUN_CONFIGS = {
             'batch_size':       128,
             'sample_PL':        0.0,
             'sample_TR':        1.0,
-            # TODO: split_batch
             'motorch_point': {
                 'n_hidden':         1,
                 'hidden_width':     30,
                 'baseLR':           1e-3,
+                'minibatch_num':    4,
+                'n_epochs_ppo':     1,
             },
             'critic_motorch_point': {
                 'hidden_width':     14,
