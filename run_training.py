@@ -186,6 +186,8 @@ RUN_CONFIGS = {
                 'baseLR':           1e-3,
                 'minibatch_num':    4,
                 'n_epochs_ppo':     1,
+                'clip_coef':        0.2,
+                'entropy_coef':     0.02,
             },
             'critic_motorch_point': {
                 'hidden_width':     14,
