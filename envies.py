@@ -10,11 +10,8 @@ class SimpleBoardGame(FiniteActionsRLEnvy):
     task is to get into each field once, after that game is won """
 
     def __init__(self, board_size= 4, **kwargs):
-
+        super().__init__(**kwargs)
         self.__board_size = board_size
-
-        FiniteActionsRLEnvy.__init__(self, **kwargs)
-
         self.__state: Optional[List[int]] = None
         self.reset()
 
@@ -74,7 +71,7 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
         self.__gym_envy = gym.make(CartPoleEnvy.GYM_ENVY_NAME)
         self.__gym_envy._max_episode_steps = max_steps
 
-        FiniteActionsRLEnvy.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self.__step_reward = float(step_reward)
         self.__won_reward = float(won_reward)
@@ -131,7 +128,7 @@ class AcrobotEnvy(FiniteActionsRLEnvy):
 
         self.__gym_envy = gym.make(AcrobotEnvy.GYM_ENVY_NAME)
 
-        FiniteActionsRLEnvy.__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
         self.__end_game_reward = float(end_game_reward)
         self.__is_over = False
