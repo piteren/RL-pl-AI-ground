@@ -52,8 +52,8 @@ RUN_CONFIGS = {
                 'hidden_width':     12,
                 'baseLR':           0.01},
         },
-        'num_batches':      1000,
-        'test_freq':        10,
+        'num_batches':      700,
+        'test_freq':        50,
         'test_episodes':    10,
     },
 
