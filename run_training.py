@@ -14,7 +14,7 @@ from r4c.policy_gradients.ppo.ppo_actor import PPOActor
 
 from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy
 
-# configurations of run_actor_training()
+# run_actor_training() configurations
 RUN_CONFIGS = {
 
     ### SimpleBoardGame
@@ -300,8 +300,8 @@ if __name__ == "__main__":
         #'PG_CP',
         #'AC_CP',
         #'A2C_CP',
-        'PPO_CP',
-        #'AC_ACR',
+        #'PPO_CP',
+        'AC_ACR',
     ]:
         run_actor_training(
             num_TS_ep=  10,
