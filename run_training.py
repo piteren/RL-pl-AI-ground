@@ -278,10 +278,10 @@ def run_actor_training(
 
     if not hpmser_mode:
         tr_nfo =   'Training report:\n'
-        tr_nfo += f'> number of actions performed (n_action):                     {tr_res["n_action"]}\n'
-        tr_nfo += f'> number of terminal states reached (n_terminal):             {tr_res["n_terminal"]}\n'
-        tr_nfo += f'> number of wins (n_won):                                     {tr_res["n_won"]}\n'
-        tr_nfo += f'> max number of succeeded tests in a row (succeeded_row_max): {tr_res["succeeded_row_max"]}'
+        tr_nfo += f'> number of actions performed:            {tr_res["n_action"]}\n'
+        tr_nfo += f'> number of terminal states reached (TR): {tr_res["n_terminal"]}\n'
+        tr_nfo += f'> number of wins (n_won):                 {tr_res["n_won"]}\n'
+        tr_nfo += f'> max number of succeeded tests in a row: {tr_res["succeeded_row_max"]}'
         logger.info(tr_nfo)
 
     if num_TS_ep:
