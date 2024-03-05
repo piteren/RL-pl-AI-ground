@@ -1,4 +1,4 @@
-gym==0.23.1
+gymnasium[box2d]
 hpmser
 pygame
 pypaq

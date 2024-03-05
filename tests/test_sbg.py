@@ -3,36 +3,45 @@ import unittest
 from envies import SimpleBoardGame
 
 
-class TestSBG(unittest.TestCase):
+class TestSimpleBoardGame(unittest.TestCase):
 
-    def test_SimpleBoardGame(self):
-
+    def test_base(self):
         game = SimpleBoardGame(board_size=5)
-        print(game.num_actions, game.get_valid_actions())
+        print(game.num_actions, game.get_valid_actions(), game.observation)
         self.assertTrue(game.num_actions == 5)
-        self.assertFalse(game.lost_episode())
+        self.assertFalse(game.is_terminal())
 
+    def test_run(self):
+        game = SimpleBoardGame(board_size=5)
         game.run(0)
-        obs = game.get_observation()
+        obs = game.observation
         print(obs)
-        self.assertTrue(obs[0] == 1)
-        self.assertFalse(game.lost_episode())
+        self.assertTrue(obs == [1, 0, 0, 0, 0])
+        self.assertFalse(game.is_terminal())
 
+    def test_terminal_reset(self):
+        game = SimpleBoardGame(board_size=5)
         game.run(0)
-        self.assertTrue(game.lost_episode())
+        game.run(0)
+        obs = game.observation
+        print(obs)
+        self.assertTrue(game.is_terminal())
+
         game.reset()
-        obs = game.get_observation()
+        obs = game.observation
         print(obs)
-        self.assertFalse(game.lost_episode())
+        self.assertFalse(game.is_terminal())
 
+    def test_won(self):
+        game = SimpleBoardGame(board_size=5)
         game.run(0)
         game.run(1)
         game.run(2)
         game.run(3)
-        print(game.get_observation())
-        self.assertFalse(game.won_episode())
-        self.assertFalse(game.lost_episode())
+        print(game.observation)
+        self.assertFalse(game.has_won())
+        self.assertFalse(game.is_terminal())
         game.run(4)
-        print(game.get_observation())
-        self.assertTrue(game.won_episode())
-        self.assertFalse(game.lost_episode())
+        print(game.observation)
+        self.assertTrue(game.has_won())
+        self.assertTrue(game.is_terminal())

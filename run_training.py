@@ -239,13 +239,14 @@ def run_actor_training(
         save_topdir=        '_models',
         hpmser_mode=        False,
         picture: bool=      False,
-        **train_point,  # for RLRunner.train()
+        **train_point,
 ) -> Dict:
 
     # early override in hpmser_mode
     if hpmser_mode:
         num_TS_ep = 0
         loglevel = 50
+        picture = False
 
     name = f'{actor_type.__name__}_{envy_type.__name__}_{stamp()}'
 
@@ -297,11 +298,11 @@ if __name__ == "__main__":
         #'QTable_SBG',
         #'DQN_SBG',
         #'DQN_CP',
-        #'PG_CP',
+        'PG_CP',
         #'AC_CP',
         #'A2C_CP',
         #'PPO_CP',
-        'AC_ACR',
+        #'AC_ACR',
     ]:
         run_actor_training(
             num_TS_ep=  10,

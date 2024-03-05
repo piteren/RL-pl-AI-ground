@@ -1,6 +1,8 @@
-import gym
+from abc import ABC
+import gymnasium
 import numpy as np
-from r4c.envy import FiniteActionsRLEnvy
+import random
+from r4c.envy import RLEnvy, FiniteActionsRLEnvy
 from typing import List, Optional
 
 
@@ -9,56 +11,128 @@ class SimpleBoardGame(FiniteActionsRLEnvy):
     """ SimpleBoardGame has N fields on the board,
     task is to get into each field once, after that game is won """
 
-    def __init__(self, board_size= 4, **kwargs):
-        super().__init__(**kwargs)
-        self.__board_size = board_size
-        self.__state: Optional[List[int]] = None
-        self.reset()
+    def __init__(self, board_size=4, render=False, **kwargs):
 
+        self.board_size = board_size
+        super().__init__(**kwargs)
+
+        self.kwargs = kwargs
+        self.kwargs['board_size'] = board_size
+        self.render = render
+
+    def build_renderable(self) -> "RLEnvy":
+        return SimpleBoardGame(**self.kwargs, render=True)
+
+    @property
+    def observation(self) -> List[int]:
+        return [] + self.state
+
+    def sample_action(self) -> int:
+        return random.sample(self.get_valid_actions(), k=1)[0]
 
     def _lost_episode(self) -> bool:
-        return max(self.__state) > 1
-
+        return max(self.state) > 1
 
     def has_won(self) -> bool:
-        return set(self.__state) == {1}
-
+        return set(self.state) == {1}
 
     def is_terminal(self) -> bool:
         return self._lost_episode() or self.has_won()
 
-
-    def run(self, action: int) -> float:
-        self.__state[action] += 1
+    def run(self, action:int) -> float:
+        self.state[action] += 1
         reward = 1 if not self._lost_episode() else -1
+        if self.render:
+            print(self.state)
         return reward
 
-
-    def get_observation(self) -> List[int]:
-        return [] + self.__state
-
-    # INFO: seed is not used since SimpleBoardGame is deterministic
     def reset_with_seed(self, seed:int):
-        self.__state = [0] * self.__board_size
+        """ seed is not used since SimpleBoardGame is deterministic """
+        self.state = [0] * self.board_size
+        return self.state
 
     @property
     def max_steps(self) -> Optional[int]:
-        return self.__board_size
-
-    def render(self):
-        print(self.__state)
+        return self.board_size
 
     def observation_vector(self, observation:List[int]) -> np.ndarray:
         return np.asarray(observation, dtype=int)
 
     def get_valid_actions(self) -> List[int]:
-        return list(range(self.__board_size))
+        return list(range(self.board_size))
 
 
-class CartPoleEnvy(FiniteActionsRLEnvy):
+class GymBasedEnvy(RLEnvy, ABC):
+    """ GymBasedEnvy is an abstract to easily build RLEnvy based on Gymnasium Envy """
 
-    GYM_ENVY_NAME = 'CartPole-v1'
-    # https://www.gymlibrary.dev/environments/classic_control/cart_pole/
+    GYM_KWARGS = {'id': '__GYM_ENVY_NAME__'}
+
+    def __init__(
+            self,
+            max_steps=  500,  # you can override default of Gym Envy
+            render=     False,
+            **kwargs):
+
+        render_mode = "human" if render else None
+        self.gym_envy = gymnasium.make(render_mode=render_mode, **self.GYM_KWARGS)
+
+        super().__init__(**kwargs)
+
+        self.gym_envy._max_episode_steps = max_steps
+        self._max_steps = max_steps
+        self.is_over = False
+        self.step = 0
+
+        self.kwargs = kwargs
+        self.kwargs['max_steps'] = max_steps
+
+    def build_renderable(self) -> "RLEnvy":
+        return type(self)(**self.kwargs, render=True)
+
+    def sample_action(self) -> object:
+        return self.gym_envy.action_space.sample()
+
+    def _lost_episode(self) -> bool:
+        return self.is_over and self.step < self.max_steps
+
+    def has_won(self) -> bool:
+        return self.is_over and self.step >= self.max_steps
+
+    def is_terminal(self) -> bool:
+        return self._lost_episode() or self.has_won()
+
+    def _override_step_reward(self, reward:float) -> float:
+        """ allows to override default step reward """
+        return reward
+
+    def run(self, action:int) -> float:
+        next_state, reward, terminated, truncated, info = self.gym_envy.step(action)
+        self.step += 1
+        self.state = next_state
+        game_over = terminated or truncated
+        self.is_over = game_over
+        return self._override_step_reward(float(reward))
+
+    def reset_with_seed(self, seed:int):
+        self.state, _ = self.gym_envy.reset(seed=seed)
+        self.is_over = False
+        self.step = 0
+        return self.state
+
+    @property
+    def max_steps(self) -> int:
+        return self._max_steps
+
+    def observation_vector(self, observation:np.ndarray) -> np.ndarray:
+        return observation.astype(float)
+
+    def get_valid_actions(self) -> List[int]:
+        return list(range(self.gym_envy.action_space.n))
+
+
+class CartPoleEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
+
+    GYM_KWARGS = {'id': 'CartPole-v1'}
 
     def __init__(
             self,
@@ -68,103 +142,54 @@ class CartPoleEnvy(FiniteActionsRLEnvy):
             max_steps=      500,    # you can override default 500 of CartPole-v1
             **kwargs):
 
-        self.__gym_envy = gym.make(CartPoleEnvy.GYM_ENVY_NAME)
-        self.__gym_envy._max_episode_steps = max_steps
+        super().__init__(max_steps=max_steps, **kwargs)
 
-        super().__init__(**kwargs)
+        self.step_reward = float(step_reward)
+        self.won_reward = float(won_reward)
+        self.lost_reward = float(lost_reward)
 
-        self.__step_reward = float(step_reward)
-        self.__won_reward = float(won_reward)
-        self.__lost_reward = float(lost_reward)
-        self.__is_over = False
-        self.reset()
+        self.kwargs.update({
+            'step_reward':  step_reward,
+            'won_reward':   won_reward,
+            'lost_reward':  lost_reward})
 
-    def _lost_episode(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps
-
-    def has_won(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps
-
-    def is_terminal(self) -> bool:
-        return self._lost_episode() or self.has_won()
-
-    def run(self, action:int) -> float:
-
-        next_state, reward, game_over, info = self.__gym_envy.step(action)
-        self.__is_over = game_over
-
-        reward = self.__step_reward
-        if self._lost_episode(): reward = self.__lost_reward
-        if self.has_won(): reward = self.__won_reward
-
+    def _override_step_reward(self, reward:float) -> float:
+        reward = self.step_reward
+        if self._lost_episode(): reward = self.lost_reward
+        if self.has_won(): reward = self.won_reward
         return reward
 
-    def get_observation(self) -> np.ndarray:
-        return self.__gym_envy.state
 
-    def reset_with_seed(self, seed:int):
-        self.__gym_envy.reset(seed=seed)
-        self.__is_over = False
+class AcrobotEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
 
-    @property
-    def max_steps(self) -> Optional[int]:
-        return self.__gym_envy._max_episode_steps
+    GYM_KWARGS = {'id': 'Acrobot-v1'}
 
-    def render(self):
-        self.__gym_envy.render()
+    def __init__(
+            self,
+            end_game_reward=    100,
+            max_steps=          500,
+            **kwargs):
+        super().__init__(max_steps=max_steps, **kwargs)
+        self.end_game_reward = float(end_game_reward)
+        self.kwargs['end_game_reward'] = self.end_game_reward
 
-    def observation_vector(self, observation:np.ndarray) -> np.ndarray:
-        return np.asarray(observation, dtype=np.float32)
-
-    def get_valid_actions(self) -> List[int]:
-        return list(range(self.__gym_envy.action_space.n))
+    def _override_step_reward(self, reward:float) -> float:
+        return self.end_game_reward if self.has_won() else reward
 
 
-class AcrobotEnvy(FiniteActionsRLEnvy):
+class LunarLanderEnvy(GymBasedEnvy):
+    """ Continuous action space envy: action np.array([main, lateral]).
+    The main engine will be turned off completely if main < 0 and the throttle scales affinely
+    from 50% to 100% for 0 <= main <= 1 (in particular, the main engine doesn’t work with less than 50% power).
+    Similarly, if -0.5 < lateral < 0.5, the lateral boosters will not fire at all.
+    If lateral < -0.5, the left booster will fire, and if lateral > 0.5, the right booster will fire.
+    Again, the throttle scales affinely from 50% to 100% between -1 and -0.5 (and 0.5 and 1, respectively). """
 
-    GYM_ENVY_NAME = 'Acrobot-v1'
+    GYM_KWARGS = {'id':'LunarLander-v2', 'continuous':True}
 
-    def __init__(self, end_game_reward=100, **kwargs):
-
-        self.__gym_envy = gym.make(AcrobotEnvy.GYM_ENVY_NAME)
-
-        super().__init__(**kwargs)
-
-        self.__end_game_reward = float(end_game_reward)
-        self.__is_over = False
-        self.reset()
-
-    def _lost_episode(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps < self.max_steps
-
-    def has_won(self) -> bool:
-        return self.__is_over and self.__gym_envy._elapsed_steps >= self.max_steps
-
-    def is_terminal(self) -> bool:
-        return self._lost_episode() or self.has_won()
-
-    def run(self, action:int) -> float:
-        next_state, r, game_over, info = self.__gym_envy.step(action)
-        self.__is_over = game_over
-        reward = self.__end_game_reward if self.has_won() else r
-        return reward
-
-    def get_observation(self) -> np.ndarray:
-        return self.__gym_envy.state
-
-    def reset_with_seed(self, seed: int):
-        self.__gym_envy.reset(seed=seed)
-        self.__is_over = False
-
-    @property
-    def max_steps(self) -> Optional[int]:
-        return self.__gym_envy._max_episode_steps
-
-    def render(self):
-        self.__gym_envy.render()
-
-    def observation_vector(self, observation:np.ndarray) -> np.ndarray:
-        return np.asarray(observation, dtype=np.float32)
+    def __init__(self, max_steps=500, **kwargs):
+        super().__init__(max_steps=max_steps, **kwargs)
 
     def get_valid_actions(self) -> List[int]:
-        return list(range(self.__gym_envy.action_space.n))
+        """ 'Box' object has no attribute 'n' """
+        raise NotImplementedError
