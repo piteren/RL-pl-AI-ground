@@ -126,9 +126,6 @@ class GymBasedEnvy(RLEnvy, ABC):
     def observation_vector(self, observation:np.ndarray) -> np.ndarray:
         return observation.astype(float)
 
-    def get_valid_actions(self) -> List[int]:
-        return list(range(self.gym_envy.action_space.n))
-
 
 class CartPoleEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
 
@@ -159,6 +156,9 @@ class CartPoleEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
         if self.has_won(): reward = self.won_reward
         return reward
 
+    def get_valid_actions(self) -> List[int]:
+        return list(range(self.gym_envy.action_space.n))
+
 
 class AcrobotEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
 
@@ -176,6 +176,9 @@ class AcrobotEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
     def _override_step_reward(self, reward:float) -> float:
         return self.end_game_reward if self.has_won() else reward
 
+    def get_valid_actions(self) -> List[int]:
+        return list(range(self.gym_envy.action_space.n))
+
 
 class LunarLanderEnvy(GymBasedEnvy):
     """ Continuous action space envy: action np.array([main, lateral]).
@@ -189,7 +192,3 @@ class LunarLanderEnvy(GymBasedEnvy):
 
     def __init__(self, max_steps=500, **kwargs):
         super().__init__(max_steps=max_steps, **kwargs)
-
-    def get_valid_actions(self) -> List[int]:
-        """ 'Box' object has no attribute 'n' """
-        raise NotImplementedError
