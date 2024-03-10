@@ -11,8 +11,9 @@ from r4c.policy_gradients.pg_actor import PGActor
 from r4c.policy_gradients.actor_critic.ac_actor import ACActor
 from r4c.policy_gradients.a2c.a2c_actor import A2CActor
 from r4c.policy_gradients.ppo.ppo_actor import PPOActor
+from r4c.policy_gradients.ppo_cas.ppo_cas_actor import PPOCASActor
 
-from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy
+from envies import SimpleBoardGame, CartPoleEnvy, AcrobotEnvy, LunarLanderEnvy
 
 # run_actor_training() configurations
 RUN_CONFIGS = {
@@ -225,6 +226,35 @@ RUN_CONFIGS = {
         'test_episodes':    10,
     },
 
+    ### LunarLander
+
+    'PPOC_LL': {
+        'envy_type':        LunarLanderEnvy,
+        'envy_point':       {},
+        'actor_type':       PPOCASActor,
+        'actor_point':      {
+            'exploration':      0.0,
+            'discount':         0.95,
+            'do_zscore':        False,
+            'batch_size':       128,
+            'motorch_point': {
+                'n_hidden':         1,
+                'hidden_width':     30,
+                'baseLR':           1e-3,
+                'minibatch_num':    4,
+                'n_epochs_ppo':     1,
+                'clip_coef':        0.2,
+                'entropy_coef':     0.02,
+            },
+            'critic_motorch_point': {
+                'hidden_width':     14,
+            }
+        },
+        'num_batches':      500,
+        'test_freq':        50,
+        'test_episodes':    10,
+    },
+
 }
 
 
@@ -298,11 +328,12 @@ if __name__ == "__main__":
         #'QTable_SBG',
         #'DQN_SBG',
         #'DQN_CP',
-        'PG_CP',
+        #'PG_CP',
         #'AC_CP',
         #'A2C_CP',
         #'PPO_CP',
         #'AC_ACR',
+        'PPOC_LL',
     ]:
         run_actor_training(
             num_TS_ep=  10,

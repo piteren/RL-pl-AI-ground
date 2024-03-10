@@ -2,7 +2,7 @@ from abc import ABC
 import gymnasium
 import numpy as np
 import random
-from r4c.envy import RLEnvy, FiniteActionsRLEnvy
+from r4c.envy import RLEnvy, FiniteActionsRLEnvy, CASRLEnvy
 from typing import List, Optional
 
 
@@ -180,7 +180,7 @@ class AcrobotEnvy(GymBasedEnvy, FiniteActionsRLEnvy):
         return list(range(self.gym_envy.action_space.n))
 
 
-class LunarLanderEnvy(GymBasedEnvy):
+class LunarLanderEnvy(GymBasedEnvy, CASRLEnvy):
     """ Continuous action space envy: action np.array([main, lateral]).
     The main engine will be turned off completely if main < 0 and the throttle scales affinely
     from 50% to 100% for 0 <= main <= 1 (in particular, the main engine doesn’t work with less than 50% power).
@@ -192,3 +192,7 @@ class LunarLanderEnvy(GymBasedEnvy):
 
     def __init__(self, max_steps=500, **kwargs):
         super().__init__(max_steps=max_steps, **kwargs)
+
+    @property
+    def action_width(self) -> int:
+        return 2
