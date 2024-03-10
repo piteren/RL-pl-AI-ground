@@ -235,7 +235,7 @@ RUN_CONFIGS = {
         'actor_point':      {
             'exploration':      0.0,
             'discount':         0.95,
-            'do_zscore':        False,
+            'do_zscore':        True,
             'batch_size':       128,
             'motorch_point': {
                 'n_hidden':         1,

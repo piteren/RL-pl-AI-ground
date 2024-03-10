@@ -28,6 +28,23 @@ class D(B,C):
         print(self.pd)
         super().do()
 
+class E(C,B):
+    def __init__(self, pe, **kwargs):
+        super().__init__(**kwargs)
+        self.pe = pe
+    def do(self):
+        print(self.pe)
+        super().do()
+
+class F(C,B):
+    def __init__(self, pe, **kwargs):
+        super().__init__(**kwargs)
+        self.pe = pe
+    def do(self):
+        print(self.pe)
+        B.do(self)
+        C.do(self)
+
 """
 a = A('a')
 b = B('b', pa='a')
@@ -39,4 +56,10 @@ c.do()
 """
 
 d = D('d', pa='a', pb='b', pc='c')
+d.do()
+print()
+d = E('e', pa='a', pb='b', pc='c')
+d.do()
+print()
+d = F('f', pa='a', pb='b', pc='c')
 d.do()
